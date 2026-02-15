@@ -13,6 +13,7 @@ P_plasm = P * η1
 G = P_plasm/h
 ch_diameter = 16e-3
 
+# Подбор тока для достижения заданной мощности
 I_range = range(0, 7000, 1000)
 P_target = 3e5
 best_I   = 0.0
