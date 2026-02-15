@@ -1,3 +1,18 @@
+function volt_amper_char(
+    I::Float64,
+    G::Float64,
+    d::Float64
+)
+    return 49022 * I ^ (-0.5) * G ^ (0.75) * d ^ (-0.5)
+end
+
+function diameter_fvach(
+    U::Float64,
+    I::Float64,
+    G::Float64
+)
+    return ((49022 * G ^ (0.75))/(U * I ^ (0.5)))^2
+end
 # Исходные данные
 p = 1e5
 T = 5e3
@@ -15,22 +30,6 @@ A_source = 0.9
 U = A_source * U_source
 I = P / U
 println("I = ", I)
-
-function volt_amper_char(
-    I::Float64,
-    G::Float64,
-    d::Float64
-)
-    return 49022 * I ^ (-0.5) * G ^ (0.75) * d ^ (-0.5)
-end
-
-function diameter_fvach(
-    U::Float64,
-    I::Float64,
-    G::Float64
-)
-    return ((49022 * G ^ (0.75))/(U * I ^ (0.5)))^2
-end
 
 # Основные расчеты
 d = diameter_fvach(U, I, G)
