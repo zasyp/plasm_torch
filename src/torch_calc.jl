@@ -5,13 +5,17 @@ function volt_amper_char(
 )
     return 49022 * I ^ (-0.5) * G ^ (0.75) * d ^ (-0.5)
 end
+p = 1e5
 P = 3e5
 h = 6.877e7
 ρ0 = 1.25
-η1 = 0.75
+η1 = 0.8525
 P_plasm = P * η1
 G = P_plasm/h
 ch_diameter = 16e-3
+R = 8.31/0.028
+T = 5000
+ρ = p / (R * T)
 
 # Подбор тока для достижения заданной мощности
 I_range = range(0, 7000, 1000)
@@ -38,8 +42,16 @@ println("I = ", round(best_I, digits=1), " A")
 println("U = ", round(best_U, digits=1), " V")
 println("P = ", round(best_U * best_I), " W")
 
+function diameter_fvach(
+    U::Float64,
+    I::Float64,
+    G::Float64
+)
+    return ((49022 * G ^ (0.75))/(U * I ^ (0.5)))^2
+end
 
 d = diameter_fvach(best_U, best_I, G)
+println("Диаметр из ВАХ, мм: ", d)
 w0 = 4*G/(ρ0 * π * d ^ 2)
 E_avg = 281.8 * best_I * (best_I^2 / w0)^(-0.59) * (G / d)^(-0.53)
 ΔU_A = 17
@@ -71,10 +83,10 @@ L_chan = L_UST - L_0
 L_overall = L_chan + L_anode
 
 # Газодинамические расчеты
-a = sqrt(1.4 * 8.31 * 5000/0.028)
+a = sqrt(1.4 * R * T)
 w = 4*G/(0.07*π*d^2)
 d_critical = sqrt(4G/(0.07*π*a))
-a_0 = sqrt(1.4 * 8.31 * 293/0.028)
+a_0 = sqrt(1.4 * R * 293)
 F_hole = G/(ρ0*a_0)
 d_hole = sqrt(4*F_hole/(3*π))
 d_hole = 0.002
@@ -98,3 +110,54 @@ println("Диаметр отверстия, м:", d_hole)
 
 println("Ресурс анода = ", round(τ_anode, digits=2), " часов")
 println("Ресурс катода = ", round(τ_cathode, digits=2), " часов")
+
+
+# Тепловые потоки в элементы конструкции
+Q_at = 6best_I
+Q_kt = 4best_I
+
+function Nusselt(Re, Pr, L_SUD, d)
+    Nu = 0.28 * (Re ^ (0.5)) * (Pr ^ (0.33)) * ((L_SUD / d) ^ (-0.5))
+    return Nu
+end
+
+function Stanton(h, h0, Re, L_anode, d)
+    St = exp(0.0156 * h / h₀ - 5.3) - 
+        real(exp(0.0402 * h / h₀ - 16)) * 
+        (0.341 * (d / L_A - 0.1)^0.241 + 0.63)
+    return St
+end
+
+function convective_heat_Stanton(St, h, hw, ρ, w)
+    return St * (h - hw) * ρ * w
+end
+
+function convective_heat_Nusselt(α, Tsm, Tw, Nu, λ, d)
+    α = Nu * λ / d
+    return α * (Tsm - Tw)
+end
+μ = 1.3e-4
+k = 1.0
+cp = 2500
+Pr = cp * μ / k
+Re = ρ * w * d / μ
+Nu = Nusselt(Re, Pr, L_SUD, ch_diameter)
+println("Pr = ", Pr)
+println("Re = ", Re)
+println("Nu = ", Nu)
+convective_heat_Nusselt_calc = convective_heat_Nusselt(Nu, T, 293, Nu, k, d)
+
+Q_conv_anode = convective_heat_Nusselt_calc * π * d_anode * L_anode
+Q_conv_channel = convective_heat_Nusselt_calc * π * ch_diameter * L_chan
+println("Тепловой поток на аноде, Вт:", Q_conv_anode)
+println("Тепловой поток в канале, Вт:", Q_conv_channel)
+
+Q_total_anode = Q_at + Q_conv_anode
+Q_total_channel = Q_kt + Q_conv_channel
+println("Общий тепловой поток на аноде, Вт:", Q_total_anode)
+println("Общий тепловой поток в канале/катоде, Вт:", Q_total_channel)
+
+Q_total = Q_total_anode + Q_total_channel
+println("Общий тепловой поток, Вт:", Q_total)
+η_thermal = (P - Q_total) / P
+println("Тепловой КПД, %:", round(η_thermal * 100, digits=2))
