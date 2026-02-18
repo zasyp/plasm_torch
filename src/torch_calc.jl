@@ -9,7 +9,7 @@ p = 1e5
 P = 3e5
 h = 6.877e7
 ρ0 = 1.25
-η1 = 0.8525
+η1 = 0.8943
 P_plasm = P * η1
 G = P_plasm/h
 ch_diameter = 16e-3
@@ -19,7 +19,7 @@ T = 5000
 
 # Подбор тока для достижения заданной мощности
 I_range = range(0, 7000, 1000)
-P_target = 3e5
+P_target = 3e5 * η1
 best_I   = 0.0
 best_U   = 0.0
 min_diff = 1e5
@@ -113,8 +113,10 @@ println("Ресурс катода = ", round(τ_cathode, digits=2), " часо�
 
 
 # Тепловые потоки в элементы конструкции
-Q_at = 6best_I
-Q_kt = 4best_I
+U_ae = 6
+U_ak = 4
+Q_at = U_ae * best_I
+Q_kt = U_ak * best_I
 
 function Nusselt(Re, Pr, L_SUD, d)
     Nu = 0.28 * (Re ^ (0.5)) * (Pr ^ (0.33)) * ((L_SUD / d) ^ (-0.5))
@@ -161,3 +163,23 @@ Q_total = Q_total_anode + Q_total_channel
 println("Общий тепловой поток, Вт:", Q_total)
 η_thermal = (P - Q_total) / P
 println("Тепловой КПД, %:", round(η_thermal * 100, digits=2))
+
+
+# Теплонапряженность элементов конструкции
+q_at = best_I * U_ae / (π * d_anode * L_anode)
+q_at_max = 1.75q_at
+q_a_max = q_at_max + convective_heat_Nusselt_calc
+
+println("Максимальное значение суммарного удельного теплового потока в анод, Вт/м^2: ", q_a_max)
+f = (d_anode + 2δ_anode) / d_anode 
+q_a_cooling = q_a_max / f
+
+cp_water = 4200
+# Расчет охлаждения
+Δ = 0.001
+ΔT_cooling = 30
+G_a_cooling = Q_total_anode / (cp_water * ΔT_cooling)
+w_water = G_a_cooling / (1000 * π * (d_anode + 2δ_anode + Δ) * Δ)
+println("Расход воды на охлаждение анода, кг/с: ", G_a_cooling)
+
+Re_water = 1000 * w_water * (2Δ) / μ
