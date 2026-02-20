@@ -175,11 +175,19 @@ f = (d_anode + 2δ_anode) / d_anode
 q_a_cooling = q_a_max / f
 
 cp_water = 4200
+λ_water = 0.6
 # Расчет охлаждения
-Δ = 0.001
+Δ = 0.003
+d_g = 2Δ
+l_water = 50d_g
+ϵ_l = 1
 ΔT_cooling = 30
 G_a_cooling = Q_total_anode / (cp_water * ΔT_cooling)
 w_water = G_a_cooling / (1000 * π * (d_anode + 2δ_anode + Δ) * Δ)
 println("Расход воды на охлаждение анода, кг/с: ", G_a_cooling)
 
 Re_water = 1000 * w_water * (2Δ) / μ
+Pr_water = μ * cp_water / λ_water
+Nu_water = 0.023 * (Re_water ^ (0.8)) * (Pr_water ^ (0.4))
+α_water = 430 * (w_water^(0.8))*(Δ^(-0.2)) * ((20 - ΔT_cooling/2)^(0.4))
+ 
