@@ -94,7 +94,7 @@ F_hole = G / (ρ0 * a_0)
 d_hole = sqrt(4 * F_hole / (3 * π))
 d_hole = 0.002
 
-g_anode = 1e-10
+g_anode = 1e-9
 ρ_anode = 8960
 δ_anode = 0.007
 τ_anode = (ρ_anode * δ_anode) / (3600 * g_anode * 1.5 * j_anode)
