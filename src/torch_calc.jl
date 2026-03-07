@@ -32,7 +32,7 @@ function convective_heat_Nusselt(Nu, Tsm, Tw, λ, d)
     return α * (Tsm - Tw)
 end
 
-j_cathode = 1e8
+j_cathode = 6e7
 
 p = 1e5
 P = 1e5
@@ -43,7 +43,7 @@ P_plasm = P * η1
 G = P_plasm / h
 G = 0.0035
 println("Расход газа, кг/с: ", G)
-ch_diameter = 10e-3
+ch_diameter = 16e-3
 R = 8.31 / 0.028
 T = 5000
 ρ = p / (R * T)
@@ -363,17 +363,15 @@ params = Dict(
     "G_water, кг/с"             => round(G_water, digits=4)
 )
 
-# Добавляем параметры охлаждения, только если решение найдено
-if solution_found
-    params["Δ охлаждения, мм"]  = round(Δ_solution * 1000, digits=2)
-    params["w_water, м/с"]      = round(w_water_solution, digits=2)
-    params["Re_water"]          = round(Re_water_solution, digits=0)
-    params["α_water, Вт/м²·К"]  = round(α_water_solution, digits=0)
-    params["ΔT стенка-вода, К"] = round(ΔT_wall_water_solution, digits=1)
-    params["ΔT в стенке, К"]    = round(ΔT_cu_solution, digits=1)
-    params["T_wall, К"]         = round(T_wall_solution, digits=1)
-    params["T_crit, К"]         = round(T_crit, digits=1)
-end
+params["Δ охлаждения, мм"]  = round(Δ * 1000, digits=2)
+params["w_water, м/с"]      = round(w_new_water, digits=2)
+params["Re_water"]          = round(Re_new_water, digits=0)
+params["α_water, Вт/м²·К"]  = round(α_new_water, digits=0)
+params["ΔT стенка-вода, К"] = round(ΔT_wall_water, digits=1)
+params["ΔT в стенке, К"]    = round(ΔT_cu, digits=1)
+params["T_wall, К"]         = round(T_wall, digits=1)
+params["T_crit, К"]         = round(T_crit, digits=1)
+
 
 # Запись в файл
 open("расчет_плазмотрона.txt", "w") do io
