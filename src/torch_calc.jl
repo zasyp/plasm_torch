@@ -186,7 +186,7 @@ cp_water = 4180.0
 T_water_in = 293.0
 ΔT_cooling = 30.0
 T_water_out = T_water_in + ΔT_cooling
-p_water = 6e5
+p_water = 7e5
 
 
 p_MPa = p_water / 1e6  
@@ -245,9 +245,11 @@ r1 = d_anode / 2
 r2 = r1 + δ_anode
 ΔT_cu = (q_cr*d_anode / 2λ_cu) * log((d_anode + 0.5δ_anode) / 0.5d_anode)
 println("ΔT в стенке для q_cr, К: ", round(ΔT_cu, digits=1))
-T_wall = ΔT_wall_water + ΔT_cu
+T_wall = ΔT_wall_water + ΔT_cu + 293
+T_wv = ΔT_wall_water + 313
 println("T стенки для q_cr, К: ", round(T_wall, digits=1))
 println("T допустимая, К: ", round(T_crit, digits=1))
+println("Twv = ", T_wv)
 println(335.6/1085)
 
 
