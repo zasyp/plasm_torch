@@ -156,7 +156,7 @@ Q_conv_channel = convective_heat_Nusselt_calc * π * ch_diameter * L_chan
 println("Тепловой поток на аноде, Вт: ", round(Q_conv_anode, digits=0))
 println("Тепловой поток в канале, Вт: ", round(Q_conv_channel, digits=0))
 Q_total_anode = Q_at + Q_conv_anode
-Q_total_channel = Q_kt + Q_conv_channel
+Q_total_channel = Q_kt
 println("Общий тепловой поток на аноде, Вт: ", round(Q_total_anode, digits=0))
 println("Общий тепловой поток в канале/катоде, Вт: ", round(Q_total_channel, digits=0))
 Q_total = Q_total_anode + Q_total_channel
@@ -251,65 +251,6 @@ println("T стенки для q_cr, К: ", round(T_wall, digits=1))
 println("T допустимая, К: ", round(T_crit, digits=1))
 println("Twv = ", T_wv)
 println(335.6/1085)
-
-
-# # Переменные для результатов
-# Δ_solution = 0.0
-# w_water_solution = 0.0
-# Re_water_solution = 0.0
-# α_water_solution = 0.0
-# ΔT_wall_water_solution = 0.0
-# ΔT_cu_solution = 0.0
-# T_wall_solution = 0.0
-# solution_found = false
-# r1 = D_inner / 2
-# r2 = r1 + δ
-# ΔT_cu = (q_a_cooling * r1 / λ_cu) * log(r2 / r1)
-# T_wall = T_water_out + ΔT_wall_water + ΔT_cu
-
-# println(T_wall)
-# for Δ in 0.001:0.0001:0.03          # ← изменён диапазон
-#     D_outer = D_inner + 2 * δ + 2 * Δ
-#     F_flow = π / 4 * (D_outer^2 - (D_inner + 2 * δ)^2)
-#     w_water = G_water / (ρ_water * F_flow)
-#     d_h = 2 * Δ
-#     Re_water = ρ_water * w_water * d_h / μ_water
-#     if Re_water < Re_min || w_water > w_max
-#         continue
-#     end
-#     Pr_water = μ_water * cp_water / λ_water
-#     Nu_water = 0.023 * Re_water^0.8 * Pr_water^0.4
-#     α_water = Nu_water * λ_water / d_h
-#     ΔT_wall_water = q_a_cooling / α_water
-#     r1 = D_inner / 2
-#     r2 = r1 + δ
-#     ΔT_cu = (q_a_max * r1 / λ_cu) * log(r2 / r1)
-#     T_wall = T_water_out + ΔT_wall_water + ΔT_cu
-#     if T_wall < T_crit
-#         println("----- РЕШЕНИЕ НАЙДЕНО -----")
-#         println("Зазор Δ = ", round(Δ * 1000, digits=2), " мм")
-#         println("Скорость воды = ", round(w_water, digits=2), " м/с")
-#         println("Re воды = ", round(Re_water))
-#         println("α воды = ", round(α_water), " Вт/м²·К")
-#         println("T стенки = ", round(T_wall, digits=1), " К")
-#         println("T допустимая = ", round(T_crit, digits=1), " К")
-#         println("ΔT_wall_water", ΔT_wall_water)
-        
-#         global Δ_solution = Δ
-#         global w_water_solution = w_water
-#         global Re_water_solution = Re_water
-#         global α_water_solution = α_water
-#         global ΔT_wall_water_solution = ΔT_wall_water
-#         global ΔT_cu_solution = ΔT_cu
-#         global T_wall_solution = T_wall
-#         global solution_found = true
-#         break
-#     end
-# end
-
-# if !solution_found
-#     println("Решение не найдено.")
-# end
 
 # Построение ВАХ + отметка рабочей точки
 U_values = Float64[]
